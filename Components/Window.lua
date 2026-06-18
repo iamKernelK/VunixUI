@@ -1,39 +1,48 @@
--- [[ PandaUI Component | Main Frame Engine & UI Thread ]]
-local TweenService = game:GetService("TweenService")
-local Players = game:GetService("Players")
-local Lighting = game:GetService("Lighting")
-local Player = Players.LocalPlayer
-
 local WindowModule = {}
+local TweenService = game:GetService("TweenService")
 
+-- لاحظ أن الدالة تستقبل Theme و Utils وباقي الملفات
 function WindowModule.new(Config, Theme, Utils, Draggable, TabModule, ElementsFolder)
-    local hubName = Config.Title or "PandaUI Hub"
-    local logoId = Config.LogoId or "17829927053"
-    local StartTime = tick()
-    
     local ScreenGuiParent = Utils.GetSafeUIFolder()
-    if ScreenGuiParent:FindFirstChild("PandaPremiumHub") then 
-        ScreenGuiParent.PandaPremiumHub:Destroy() 
+    local ScreenGui = Instance.new("ScreenGui", ScreenGuiParent)
+    ScreenGui.Name = "PandaHub"
+
+    local Main = Instance.new("CanvasGroup", ScreenGui)
+    Main.Size = UDim2.fromOffset(660, 460)
+    Main.Position = UDim2.new(0.5, -330, 0.5, -230)
+    Main.BackgroundColor3 = Theme.Background -- استخدام الثيم
+
+    local TopBar = Instance.new("Frame", Main)
+    TopBar.Size = UDim2.new(1, 0, 0, 50)
+    TopBar.BackgroundTransparency = 1
+    
+    -- تفعيل السحب
+    Draggable(Main, TopBar)
+
+    local TabsScroll = Instance.new("ScrollingFrame", Main)
+    TabsScroll.Size = UDim2.new(0, 190, 1, -65)
+    TabsScroll.Position = UDim2.new(0, 12, 0, 50)
+    TabsScroll.BackgroundTransparency = 1
+
+    local ContentContainer = Instance.new("Frame", Main)
+    ContentContainer.Size = UDim2.new(1, -225, 1, -65)
+    ContentContainer.Position = UDim2.new(0, 215, 0, 50)
+    ContentContainer.BackgroundTransparency = 1
+
+    local ActiveTabTracker = { Value = nil }
+    local AllElements = {}
+
+    local WindowObj = {}
+    
+    function WindowObj:CreateCategory(catName)
+        -- تمرير الموديولات للتابات (هذا هو الدمج)
+        return TabModule.new(TabsScroll, ContentContainer, catName, Theme, Utils, ElementsFolder, AllElements, ActiveTabTracker)
     end
 
-    local ScreenGui = Instance.new("ScreenGui", ScreenGuiParent)
-    ScreenGui.Name = "PandaPremiumHub"
-    ScreenGui.ResetOnSpawn = false
+    return WindowObj
+end
 
-    local BlurInstance = Lighting:FindFirstChild("PandaPremiumBlur")
-    if BlurInstance then BlurInstance:Destroy() end
-    
-    local function ToggleBlur(state)
-        if state then
-            BlurInstance = Instance.new("BlurEffect", Lighting)
-            BlurInstance.Name = "PandaPremiumBlur"
-            BlurInstance.Size = 0
-            TweenService:Create(BlurInstance, TweenInfo.new(0.5), {Size = 8}):Play()
-        else
-            if BlurInstance then
-                local t = TweenService:Create(BlurInstance, TweenInfo.new(0.4), {Size = 0})
-                t:Play()
-                t.Completed:Connect(function() if BlurInstance then BlurInstance:Destroy() end end)
+return WindowModule
             end
         end
     end
