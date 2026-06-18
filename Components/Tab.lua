@@ -1,39 +1,35 @@
--- [[ PandaUI Component | Categories & Tabs Handler ]]
 local TabModule = {}
 
 function TabModule.new(TabsScroll, ContentContainer, catName, Theme, Utils, ElementsFolder, AllElements, ActiveTabTracker)
-    local CatFrame = Instance.new("Frame", TabsScroll)
-    CatFrame.Size = UDim2.new(1, -16, 0, 36)
-    CatFrame.BackgroundTransparency = 1
-    CatFrame.ClipsDescendants = true
-
-    local CatFrameStroke = Instance.new("UIStroke", CatFrame)
-    CatFrameStroke.Color = Color3.fromRGB(40, 40, 50)
-    CatFrameStroke.Thickness = 1
-
-    local CatBtn = Instance.new("TextButton", CatFrame)
-    CatBtn.Size = UDim2.new(1, 0, 0, 36)
-    CatBtn.BackgroundTransparency = 1
-    CatBtn.Text = "  ▼  " .. catName
-    CatBtn.TextColor3 = Theme.SubText
-    CatBtn.Font = Enum.Font.GothamBold
-    CatBtn.TextSize = 12
-    CatBtn.TextXAlignment = Enum.TextXAlignment.Left
-
-    local SubTabsLayout = Instance.new("UIListLayout", CatFrame)
-    SubTabsLayout.Padding = UDim.new(0, 4)
-    SubTabsLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
-    local Expanded = false
-    CatBtn.MouseButton1Click:Connect(function()
-        Expanded = not Expanded
-        local targetHeight = Expanded and (SubTabsLayout.AbsoluteContentSize.Y + 10) or 36
-        Utils.Tween(CatFrame, {Size = UDim2.new(1, -16, 0, targetHeight)})
-        CatBtn.Text = Expanded and ("  ▲  " .. catName) or ("  ▼  " .. catName)
-        Utils.Tween(CatBtn, {TextColor3 = Expanded and Theme.Accent or Theme.SubText})
-    end)
-
     local CatObj = {}
+    
+    function CatObj:CreateTab(tabConfig)
+        local TabPage = Instance.new("ScrollingFrame", ContentContainer)
+        TabPage.Size = UDim2.new(1, 0, 1, 0)
+        TabPage.BackgroundTransparency = 1
+        TabPage.Visible = false
+
+        -- هنا يتم استدعاء ملفات العناصر عند الحاجة فقط (الدمج المصغر)
+        local Elements = {}
+
+        function Elements:CreateButton(name, callback)
+            -- يتم عمل require لملف الزر وتمرير الصفحة والثيم له
+            local ButtonClass = require(ElementsFolder:WaitForChild("Button"))
+            return ButtonClass(TabPage, name, callback, Theme, Utils, AllElements)
+        end
+
+        function Elements:CreateSlider(config)
+            local SliderClass = require(ElementsFolder:WaitForChild("Slider"))
+            return SliderClass(TabPage, config, Theme, Utils, AllElements)
+        end
+
+        return Elements
+    end
+    
+    return CatObj
+end
+
+return TabModule
 
     function CatObj:CreateTab(tabConfig)
         local tabName = tabConfig.Name
