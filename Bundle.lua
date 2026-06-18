@@ -1,28 +1,25 @@
--- [[ PandaUI | Bundle Release ]]
--- هذا الملف مجمع آلياً من ملفات الـ Source الأصلية
+-- [[ PandaUI | Bundle ]]
 
-local PandaUI = {}
-
--- 1. دمج الـ Theme
-PandaUI.Theme = {
-    -- انسخ هنا ما في Theme.lua
+-- 1. ضع هنا الثيم (الذي كان في سكربت الألوان)
+local Theme = {
+    Background = Color3.fromRGB(12, 12, 14),
+    -- باقي الألوان...
 }
 
--- 2. دمج الـ Utilities
+-- 2. ضع هنا أدواتك (التي كانت في سكربت الأدوات)
 local Utils = {}
--- انسخ هنا الدوال الموجودة في Utilities.lua
-PandaUI.Utils = Utils
+function Utils.Tween(...) end 
+-- باقي الدوال...
 
--- 3. دمج العناصر (Elements Engine)
-local Elements = {}
--- ضع هنا دوال Button, Slider, Toggle, Dropdown
-PandaUI.Elements = Elements
-
--- 4. المحرك الرئيسي (Window & Tabs)
--- هنا ضع منطق init.lua الخاص بك
-function PandaUI:CreateWindow(Config)
-    -- استخدم العناصر من PandaUI.Elements مباشرة
-    -- لا تستخدم require هنا أبداً
+-- 3. ضع هنا المحرك الرئيسي (الذي كان في سكربت الواجهة)
+local function CreateMainLibrary()
+    local Library = {}
+    
+    -- استخدم Theme و Utils هنا مباشرة
+    -- Library.Theme = Theme
+    
+    return Library
 end
 
-return PandaUI
+-- 4. في النهاية، هذا هو السطر الذي يخرج المكتبة للعالم
+return CreateMainLibrary()
